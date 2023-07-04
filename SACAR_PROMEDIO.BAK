@@ -1,0 +1,28 @@
+        ; SUMA LA LISTA DE NUMEROS Y SACA PROMEDIO
+
+        ORG $90                ; INICIO MEMORIA
+        DB $08,$04,$07,$06,$08 ; LISTA DE DATOS 90
+        DB $05                 ; CANTIDAD DE ELEMENTOS +1 95
+        DB $00                 ; SUMA DE LOS ELEMENTOS 96
+        DB $00                 ; PROMEDIO 97
+
+        ORG $EEOO              ; INICIO PROGRAMA
+        CLRA                   ; LIMPIO ACUMULADOR
+        LDX #$90               ; X= #$90
+  DATO: DEC $95                ; DECREMENTO CANTIDAD DE ELEMENTOS
+        LDA $95                ; ACU= $95
+        CBEQA #$00 PROM        ; SI NO HAY MAS ELEMENTOS SALTO A FIN
+        LDA $96                ; ACU = $96
+        ADD X                  ; AL ACU LE SUMO X
+        STA $96                ; GUARDO EL RESULTADO EN LA POS $96
+        INC X                  ; INCREMENTO X
+        BRA DATO               ; SALTO A DATO
+
+  PROM: LDHX #$0205            ; H= #$02 X= #$05
+        LDA #$01               ; ACU =01
+        DIV                    ; DIVIDIS #$21/#$05
+        STA $97                ; GUARDAS RESULTADO EN LA POS DE MEMORIA 97
+        SWI                    ; FIN DE PROGRAMA. INT POR SOFT
+        ORG $FFFA
+        DW $EEOO
+

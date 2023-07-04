@@ -1,0 +1,51 @@
+        ;DE UNA LISTA DE 5 NUMEROS, QUEDESE CON EL MAS GRANDE DE TODOS.
+        ; COMPARO CON $09, SI ES MAYOR DIVILO POR 2. SI ES MENOR,
+        ; VERIFICO SI ES PAR LE SUMO 5 Y SI ES IMPAR LO MULTI POR 2
+
+        ORG $80                 ; INICIO MEMORIA
+        DB $AA,$09,$AC,$04,$00  ; LISTA DE NUMEROS      80 A 84
+        DB $06                  ; CANTIDAD DE ELEMENTOS +1 85
+        DB $00                  ; GUARDO NUMERO MAS ALTO   86
+        DB $09                  ; NUM PARA COMPARAR 87
+        DB $00                  ; GUARDO PAR O IMPAR 88
+
+        ORG $EE00               ; INICIO PROGRAMA
+        CLRA                    ; LIMPIO ACUMULADOR
+        LDX #$80                ; X= #$80
+  DATO: DEC $85                 ; DECREMENTO CANTIDAD DE ELEMENTOS
+        LDA $85                 ; ACU= $85
+        CBEQA #$00 SAL          ; SI NO HAY MAS ELEMENTOS SALTO A SAL
+        LDA ,X                  ; ACU = LO QUE INDICA X
+        CMP $86                 ; COMPARO CON LO QUE HAY EN POS 86
+        BHI MAYOR               ; SI ACU ES MAYOR SALTO
+        INC X                   ; INCREMENTO X PARA PASAR DE ELEMENTO
+        BRA DATO                ; SALTO A DATO
+
+
+ MAYOR: STA $86                 ; GUARDO EN LA POS 86 EL NUMERO MAS ALTO
+        INC X                   ; INCREMENTO X PARA PASAR DE ELEMENTO
+        BRA DATO                ; SALTO A DATO
+
+   SAL: LDA $86                 ; CARGO EN ACU EL NUMERO MAS ALTO
+        CMP $87                 ; PONGO EL NUMERO PARA COMPARAR
+        BHI MAYOR               ; SALTA SI ES MAYOR
+        AND #01                 ; MASCARA PARA QUEDARSE CON EL BIT MENOS SIGNIFICATIVO
+        BEQ PAR                 ; SI ES PAR MENOR VERIFICA SI ES PAR Y SALTA
+        LDX #$                  ; X= #$2
+        MUL                     ; MULTIPLICAMOS POR 2 A ACU
+        STA $88                 ; GUARDO RESULTADO EN POS 88
+        BRA FIN                 ; SALTO A FIN
+
+ MAYOR: LDHX #$0A02             ; H= #$0A X= #$02
+        LDA #$0A                ; ACU= #$0A
+        DIV                     ; DIVIDIMOS
+        STA $88                 ; GUARDO EN POS 88 DE MEMORIA
+        BRA FIN                 ; SALTO A FIN
+
+   PAR: ADD #$05                ; LE SUMO AL ACU EL VALOR #$5
+        STA $88                 ; GUARDO EN LA POS 88 DE MEMORIA
+
+   FIN: SWI                     ; FIN DE PROGRAMA. INT POR SOFT
+        ORG $FFFA
+        DW $EE00
+

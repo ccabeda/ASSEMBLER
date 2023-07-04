@@ -1,0 +1,37 @@
+        ;CONTAR BITS EN 0 DE 1001011. SI ES PAR MULTIPLICA ESE NUM POR 2.SINO, SUMALE 5
+
+
+        ORG $80         ; INICIO MEMORIA
+        DB %1001011     ; GUARDO EL NUMERO
+        DB $09          ; CANTIDAD DE BITS +1
+        DB $00          ; CANTIDAD DE CEROS
+        DB $00          ; GUARDO RESULTADO
+
+        ORG $EEOO       ; INICIO PROGRAMA
+        CLRA            ; LIMPIO ACUMULADOR
+  DATO: DEC $81         ; DECREMENTO CANTIDAD DE BITS
+        LDA $81         ; ACU= $81
+        CBEQA #$00 SAL  ; SI NO HAY MAS CANTIDAD DE BITS SALTO
+        LDA $80         ; ACU= %1001011
+        ASLA            ; ME QUEDO EN ACU CON EL BIT MAS SIGNIFICATIVO
+        BCC CERO        ; SI ES CERO SALTA
+        BRA DATO        ; SALTO A DATO
+
+  CERO: INC $82         ; INCREMENTO LA CANTIDAD DE CEROS
+        BRA DATO        ; SALTO A DATO
+
+   SAL: LDA $82         ; CARGO LA CANTIDAD DE CEROS EN ACU
+        AND #$01        ; MASCARA PARA QUEDARNOS CON EL BIT MENOS SIGNIFICATIVO
+        BEQ PAR         ; SALTA SI ES PAR
+        ADD #$05        ; SI ES IMPAR SUMO 5
+        STA $83         ; GUARDO EL RESULTADO EN LA POS 83
+        BRA FIN         ; SALTO FIN
+
+   PAR: LDX #$02        ; X= #$02
+        MUL             ; MULTIPLICO ACU POR 2
+        STA $83         ; GUARDO EL RESULTADO EN LA POS 83
+        BRA FIN         ; SALTO A FIN
+
+   FIN: SWI             ; FIN DE PROGRAMA. INT POR SOFT
+        ORG $FFFA
+        DW $EEOO
